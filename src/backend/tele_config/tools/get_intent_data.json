@@ -1,0 +1,19 @@
+{
+    "Category_List": [
+      {
+        "Category_Name": "Get Customer Churn",
+        "Subcategory_List": [
+          "Plot graph",
+          ""
+        ]
+      },
+      {
+        "Category_Name": "show customer churn segments",
+        "Subcategory_List": [
+          "",
+          ""
+        ]
+      }
+    ]
+  }
+  
