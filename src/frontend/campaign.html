@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialog</title>
+</head>
+<style>
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+}
+header, footer {
+    background-color: #004578; /* Microsoft's header/footer color */
+    color: white;
+    text-align: center;
+    padding: 1em;
+  }
+
+/* Dialog title */
+#dialogTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Close button */
+.close-button {
+    background-color: #007bff;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+/* Tab group */
+.tab-group {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+/* Tabs */
+.tab-group button {
+    border: none;
+    background-color: #007bff;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Tab content */
+.tab-content {
+   
+}
+
+/* Message label */
+.message-label {
+    font-weight: bold;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Input */
+input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Message sent confirmation */
+.message-sent {
+    display:none;
+    font-style: italic;
+    color: green;
+    margin-top: 0.5rem;
+}
+
+/* Dialog actions */
+.dialog-actions {
+    margin-top: 1rem;
+}
+
+/* Buttons */
+button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Heading */
+h2 {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+</style>
+
+<body>
+    <header>
+        TeleMobi Inc. 
+    </header>
+    <h2 id="dialogTitle"></h2>
+
+    <div>
+        <div id="dialogContent" class="mat-typography">
+            <div id="tabGroup" class="tab-group">
+                <h1>Campaign Generator</h1>
+                <div id="messageGeneratorTab" class="tab-content">
+                    <div class="message-label">Message Rules:</div>
+                    <br />
+                    <textarea id="messagePrompt" title="Message" placeholder="Example: 5% discount on your plan. &#13;New mobile plan. &#13;We're sorry."></textarea>
+                    <div id="dialogActions" class="dialog-actions" align="end">
+                        <button id="generateButton" onclick="completeEmailSmsMessages() ">Generate Email/SMS Messages</button>
+                    </div>
+                    <div id="errorMessage" class="error-message"></div>
+                </div>
+                <h1>Email/SMS</h1>
+                <div id="emailSMSTab" class="tab-content">
+                    <div class="grid-container">
+                        <div>
+                            <div class="message-label">Email Message:</div>
+                            <br />
+                            <input id="emailSubject" type="text" title="Subject" class="email-subject"
+                                placeholder="Subject" />
+                            <textarea id="emailBody" type="text" title="Message" class="email-message"></textarea>
+                            <div id="emailSentMessage" class="message-sent">Email sent!</div>
+                            <div id="emailActions" class="dialog-actions" align="end">
+                                <button id="sendEmailButton" onclick="sendEmail()" [disabled]="!emailSubject || !emailBody">Send Email</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="message-label">SMS Message:</div>
+                            <textarea id="smsMessage" type="text" title="Message" class="sms-message"></textarea>
+                            <div id="smsSentMessage" class="message-sent">SMS message sent!</div>
+                            <div id="smsActions" class="dialog-actions" align="end">
+                                <button id="sendSMSButton" onclick="sendSmsMessages()" [disabled]="!smsMessage">Send SMS</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer style="font-size: 16px;">
+        copyright TeleMobi Inc. 
+    </footer>
+    <script>
+        const apiUrl = 'http://localhost:3000/api/';
+        function completeEmailSmsMessages() {
+            const url = `${apiUrl}completeEmailSmsMessages`;
+            const data = document.getElementById("messagePrompt").value;
+            const requestData = {
+                "prompt": data,
+                "company": 'Capgemini',
+                "contactName": "Ana"
+            };
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Return the promise here
+            })
+            .then(responseJSON => { // Handle the resolved promise here
+                document.getElementById('emailSubject').value = responseJSON.emailSubject;
+                document.getElementById('emailBody').value = responseJSON.emailBody;
+                document.getElementById('smsMessage').value = responseJSON.sms;
+                return responseJSON; // Return the JSON data for potential further processing
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                throw error;
+            });
+    }
+    function sendSmsMessages() {
+            const url = `${apiUrl}sendSms`;
+            const data = document.getElementById("smsMessage").value;
+            const requestData = {
+                "message":data,
+                "customerPhoneNumber":"9195273539"
+            };
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Return the promise here
+            })
+            .then(responseJSON => { // Handle the resolved promise here
+                document.getElementById("smsSentMessage").style.display="block";
+                return responseJSON; // Return the JSON data for potential further processing
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                throw error;
+            });
+    }
+    function sendEmail() {
+            const url = `${apiUrl}sendEmail`;
+            const data = document.getElementById("emailBody").value;
+            const subject = document.getElementById("emailSubject").value;
+            const requestData = {
+                "subject":subject,
+                "message": data,
+                "customerName": "Ana",
+                "customerEmailAddress":"rajesh.c.radhakrishnan@capgemini.com"
+            };
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Return the promise here
+            })
+            .then(responseJSON => { // Handle the resolved promise here
+                document.getElementById("emailSentMessage").style.display="block";
+                return responseJSON; // Return the JSON data for potential further processing
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                throw error;
+            });
+    }
+    </script>
+</body>
+
+</html>
